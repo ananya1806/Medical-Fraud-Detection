@@ -246,72 +246,6 @@ function ModelComparisonChart() {
     ["accuracy", "Accuracy", (v) => fmtPct(v)],
     ["auc_pr", "AUC-PR", (v) => fmtFloat(v, 4)],
   ];
-  const width = 760;
-  const rowHeight = 82;
-  const headerHeight = 42;
-  const height = headerHeight + metricDefs.length * rowHeight + 18;
-
-  const children = [];
-  metricDefs.forEach(([key, label, formatter], metricIndex) => {
-    const yBase = headerHeight + metricIndex * rowHeight;
-    children.push(
-      h("text", {
-        key: `${key}-label`,
-        x: 0,
-        y: yBase + 16,
-        fill: "#12324d",
-        fontSize: 14,
-        fontWeight: 700,
-        letterSpacing: 1.6,
-      }, label)
-    );
-
-    const maxValue = Math.max(...models.map((model) => Number(metricsByModel[model]?.[key] || 0)), 0.0001);
-    models.forEach((model, idx) => {
-      const meta = modelMeta[model];
-      const value = Number(metricsByModel[model]?.[key] || 0);
-      const barX = 160;
-      const barY = yBase + 26 + idx * 16;
-      const trackWidth = 430;
-      const fillWidth = Math.max(4, (value / maxValue) * trackWidth);
-
-      children.push(
-        h(Fragment, { key: `${key}-${model}` },
-          h("text", {
-            x: barX,
-            y: barY - 1,
-            fill: "#6b8aa5",
-            fontSize: 11,
-            fontWeight: 700,
-          }, meta.label),
-          h("rect", {
-            x: barX + 110,
-            y: barY - 11,
-            width: trackWidth,
-            height: 10,
-            rx: 10,
-            fill: "rgba(74,163,224,0.10)",
-          }),
-          h("rect", {
-            x: barX + 110,
-            y: barY - 11,
-            width: fillWidth,
-            height: 10,
-            rx: 10,
-            fill: meta.color,
-          }),
-          h("text", {
-            x: width - 18,
-            y: barY - 1,
-            fill: "#12324d",
-            fontSize: 12,
-            fontWeight: 700,
-            textAnchor: "end",
-          }, formatter(value))
-        )
-      );
-    });
-  });
 
   return h(Fragment, null,
     h("div", { className: "legend" },
@@ -320,11 +254,45 @@ function ModelComparisonChart() {
         modelMeta[model].label
       ))
     ),
-    h("div", { className: "chart-card svg-wrap" },
-      h("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Model comparison chart" }, children)
+    h("div", { className: "chart-card responsive-benchmark", role: "img", "aria-label": "Model comparison chart" },
+      ...metricDefs.map(([key, label, formatter], metricIndex) => {
+        const scaleMax = key === "auc_pr"
+          ? Math.max(...models.map((model) => Number(metricsByModel[model]?.[key] || 0)), 0.0001)
+          : 1;
+
+        return h("div", {
+          className: `benchmark-group ${metricIndex % 2 === 0 ? "is-blue" : "is-teal"}`,
+          key,
+        },
+          h("div", { className: "benchmark-metric" },
+            h("div", { className: "benchmark-kicker" }, "Metric"),
+            h("div", { className: "benchmark-label" }, label)
+          ),
+          h("div", { className: "benchmark-bars" },
+            ...models.map((model) => {
+              const meta = modelMeta[model];
+              const value = Number(metricsByModel[model]?.[key] || 0);
+              const widthPct = Math.max(0.8, (value / scaleMax) * 100);
+
+              return h("div", { className: "benchmark-row", key: `${key}-${model}` },
+                h("div", { className: "benchmark-model" }, meta.label),
+                h("div", { className: "benchmark-track-wrap" },
+                  h("div", { className: "benchmark-track" },
+                    h("div", {
+                      className: "benchmark-fill",
+                      style: { width: `${Math.min(widthPct, 100)}%`, background: meta.color },
+                    })
+                  )
+                ),
+                h("div", { className: "benchmark-value" }, formatter(value))
+              );
+            })
+          )
+        );
+      })
     ),
     h("div", { className: "footer" },
-      "This chart compares the three supervised baselines side by side and shows why GBT is the strongest current production candidate."
+      "This benchmark compares the three supervised baselines across the core evaluation metrics and identifies Gradient Boosted Trees as the lead model."
     )
   );
 }
