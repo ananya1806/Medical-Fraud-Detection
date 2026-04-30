@@ -188,13 +188,13 @@ function FindingsPage() {
         )
       ),
       h(Panel, { className: "accent-panel" },
-        h("div", { className: "eyebrow" }, "Investigation Goal"),
+        h("div", { className: "eyebrow" }, "Priority Review Set"),
         h("div", { className: "accent-stat" }, "Top 25"),
         h("p", { className: "copy" },
-          "The frontend focuses on actionable outputs: who should be reviewed first, how the hybrid model prioritizes cases, and what the current deployment artifact is surfacing."
+          "This view highlights the highest-priority provider records based on the hybrid scoring framework, combining supervised model output with anomaly-driven risk signals."
         ),
         h("div", { className: "mini-note" },
-          "Use this page during presentation to walk through the provider ranking, the hybrid tiers, and the concrete outputs your pipeline produces."
+          "The ranked output is intended to support targeted review, triage, and downstream investigative prioritization."
         )
       )
     ),
