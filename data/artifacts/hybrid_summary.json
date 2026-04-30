@@ -1,0 +1,16 @@
+{
+  "bands": [
+    {
+      "band": "high",
+      "count": 197
+    },
+    {
+      "band": "low",
+      "count": 5070518
+    },
+    {
+      "band": "medium",
+      "count": 116965
+    }
+  ]
+}

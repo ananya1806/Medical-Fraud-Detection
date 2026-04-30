@@ -43,6 +43,7 @@ TOP_RISK_OUTPUT_PATH = "data/processed/top_risk_providers"
 MODEL_OUTPUT_PATH = "data/artifacts/best_model"
 METRICS_OUTPUT_PATH = "data/artifacts/model_metrics.json"
 TIMINGS_OUTPUT_PATH = "data/artifacts/stage_timings.json"
+HYBRID_SUMMARY_OUTPUT_PATH = "data/artifacts/hybrid_summary.json"
 REPORT_YEAR = 2023
 FRAUD_HORIZON_YEARS = 2
 
@@ -117,7 +118,23 @@ def save_risk_artifacts(hybrid_df):
     hybrid_df.write.mode("overwrite").parquet(HYBRID_RISK_OUTPUT_PATH)
     persisted_hybrid_df = hybrid_df.sparkSession.read.parquet(HYBRID_RISK_OUTPUT_PATH)
 
-    print_hybrid_summary(persisted_hybrid_df)
+    try:
+        summary_rows = (
+            persisted_hybrid_df.groupBy("hybrid_risk_band")
+            .count()
+            .orderBy("hybrid_risk_band")
+            .collect()
+        )
+        summary_payload = {
+            "bands": [
+                {"band": row["hybrid_risk_band"], "count": row["count"]}
+                for row in summary_rows
+            ]
+        }
+        save_json_artifact(summary_payload, HYBRID_SUMMARY_OUTPUT_PATH)
+        print_hybrid_summary(persisted_hybrid_df)
+    except Exception as exc:
+        print(f"Skipping hybrid summary export due to resource constraints: {exc}")
 
     compact_risk_df = build_compact_risk_table(persisted_hybrid_df).coalesce(1)
     compact_risk_df.write.mode("overwrite").parquet(COMPACT_RISK_OUTPUT_PATH)
