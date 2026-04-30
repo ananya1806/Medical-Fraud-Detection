@@ -2,7 +2,12 @@ from pyspark.sql.functions import col, trim, lpad, regexp_replace
 
 
 def clean_prescribers(df):
-    df = df.withColumnRenamed("PRSCRBR_NPI", "provider_id")
+    if "PRSCRBR_NPI" in df.columns:
+        df = df.withColumnRenamed("PRSCRBR_NPI", "provider_id")
+    elif "Prscrbr_NPI" in df.columns:
+        df = df.withColumnRenamed("Prscrbr_NPI", "provider_id")
+    else:
+        raise ValueError("prescribers missing PRSCRBR_NPI/Prscrbr_NPI column")
 
     df = df.withColumn(
         "provider_id",

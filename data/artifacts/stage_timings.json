@@ -1,0 +1,11 @@
+{
+  "feature_dataset_rows": 2712974,
+  "feature_dataset_seconds": 109.729,
+  "labeled_rows": 2712872,
+  "labeling_seconds": 1.184,
+  "load_label_sources_seconds": 2.023,
+  "model_training_seconds": 391.854,
+  "risk_scoring_seconds": 104.409,
+  "total_pipeline_seconds": 617.025,
+  "used_processed_featured_data": false
+}
