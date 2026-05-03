@@ -257,6 +257,6 @@ venv/bin/python src/main.py
 
 A concise overview of the project, including pipeline design, modeling approach, and results, is available here:
 
-[Project Presentation]((https://canva.link/qkjb2cj9ntdx4ix))
+[Project Presentation](<(https://canva.link/qkjb2cj9ntdx4ix)>)
 
 ---
