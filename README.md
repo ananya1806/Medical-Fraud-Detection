@@ -253,5 +253,10 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 ```bash
 venv/bin/python src/main.py
 ```
+## Presentation
+
+A concise overview of the project, including pipeline design, modeling approach, and results, is available here:
+
+[Project Presentation]((https://canva.link/qkjb2cj9ntdx4ix))
 
 ---
