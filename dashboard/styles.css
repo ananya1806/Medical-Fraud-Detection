@@ -527,6 +527,45 @@ a {
   padding: 26px;
 }
 
+.illustrative-table {
+  display: grid;
+  gap: 10px;
+}
+
+.illustrative-head,
+.illustrative-row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.7fr 0.85fr 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.illustrative-head {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(106, 136, 161, 0.14);
+}
+
+.illustrative-row {
+  border-radius: 16px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(237,248,255,0.72));
+  border: 1px solid rgba(74, 163, 224, 0.08);
+}
+
+.illustrative-row span {
+  font-size: 0.92rem;
+}
+
+.illustrative-action {
+  color: var(--blue-900);
+  font-weight: 700;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -561,16 +600,51 @@ td.provider {
   font-size: 0.87rem;
 }
 
-.score-pill {
+.type-cell {
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.state-cell {
+  font-weight: 700;
+}
+
+.risk-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.risk-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 58px;
-  padding: 7px 10px;
+  min-width: 78px;
+  padding: 7px 12px;
   border-radius: 999px;
   font-weight: 800;
-  color: var(--blue-900);
-  background: linear-gradient(180deg, rgba(43,180,178,0.16), rgba(74,163,224,0.18));
+  font-size: 0.88rem;
+}
+
+.risk-low {
+  color: #0f6d68;
+  background: linear-gradient(180deg, rgba(43,180,178,0.16), rgba(141,228,223,0.24));
+}
+
+.risk-medium {
+  color: #14578b;
+  background: linear-gradient(180deg, rgba(74,163,224,0.16), rgba(159,216,255,0.26));
+}
+
+.risk-high {
+  color: #9a4f00;
+  background: linear-gradient(180deg, rgba(242,161,75,0.18), rgba(255,214,168,0.32));
+}
+
+.risk-critical {
+  color: #a63d31;
+  background: linear-gradient(180deg, rgba(239,107,87,0.16), rgba(255,193,183,0.3));
 }
 
 .footer {
@@ -606,5 +680,12 @@ td.provider {
   }
   .benchmark-value {
     text-align: left;
+  }
+  .illustrative-head,
+  .illustrative-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  table {
+    font-size: 0.88rem;
   }
 }

@@ -59,7 +59,7 @@ function Hero() {
       h("div", { className: "kpi-grid" },
         KPI("Best Model", prettifyModel(bestModelName)),
         KPI("AUC-ROC", fmtFloat(bestMetrics.auc_roc)),
-        KPI("Recall", fmtPct(bestMetrics.recall)),
+        KPI("Precision", fmtPct(bestMetrics.precision)),
         KPI("Prediction Cohort", fmtInt(timings.labeled_rows))
       )
     ),
@@ -222,6 +222,13 @@ function FindingsPage() {
             KPI("F1", fmtFloat(bestMetrics.f1, 4)),
             KPI("AUC-PR", fmtFloat(bestMetrics.auc_pr, 4)),
             KPI("Recall", fmtPct(bestMetrics.recall))
+          )
+        ),
+        h("section", { className: "summary-card" },
+          h("h3", null, "Illustrative Review Tiers"),
+          h(IllustrativeTierTable),
+          h("div", { className: "footer" },
+            "These example tiers show how the final review categories are interpreted during presentation and downstream triage."
           )
         )
       ),
@@ -490,34 +497,88 @@ function HybridRiskChart() {
   );
 }
 
+function prettifyRiskBand(band) {
+  if (!band) return "Low";
+  const value = String(band).toLowerCase();
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function IllustrativeTierTable() {
+  const rows = [
+    { tier: "Critical", model: "0.99", behavior: "0.94", action: "Immediate review" },
+    { tier: "High", model: "0.93", behavior: "0.67", action: "Priority shortlist" },
+    { tier: "Medium", model: "0.71", behavior: "0.52", action: "Secondary review" },
+    { tier: "Low", model: "0.42", behavior: "0.28", action: "Routine monitoring" },
+  ];
+
+  return h("div", { className: "illustrative-table" },
+    h("div", { className: "illustrative-head" },
+      h("span", null, "Tier"),
+      h("span", null, "Model"),
+      h("span", null, "Behavior"),
+      h("span", null, "Action")
+    ),
+    ...rows.map((row) =>
+      h("div", { className: "illustrative-row", key: row.tier },
+        h("span", null,
+          h("span", {
+            className: `risk-pill risk-${row.tier.toLowerCase()}`
+          }, row.tier)
+        ),
+        h("span", null, row.model),
+        h("span", null, row.behavior),
+        h("span", { className: "illustrative-action" }, row.action)
+      )
+    )
+  );
+}
+
 function TopRiskTable() {
+  const dedupedRows = [];
+  const seenProviders = new Set();
+
+  topRiskRows.forEach((row) => {
+    const providerId = row.provider_id || "";
+    if (!providerId || seenProviders.has(providerId)) {
+      return;
+    }
+    seenProviders.add(providerId);
+    dedupedRows.push(row);
+  });
+
   return h(Fragment, null,
     h("table", null,
       h("thead", null,
         h("tr", null,
           h("th", null, "Provider"),
-          h("th", null, "Type"),
+          h("th", null, "Provider Specialty"),
           h("th", null, "State"),
-          h("th", null, "Supervised"),
-          h("th", null, "Anomaly"),
-          h("th", null, "Hybrid")
+          h("th", null, "Model Score"),
+          h("th", null, "Behavior Score"),
+          h("th", null, "Risk Level")
         )
       ),
       h("tbody", null,
-        ...topRiskRows.map((row, idx) =>
+        ...dedupedRows.map((row, idx) =>
           h("tr", { key: `${row.provider_id}-${idx}` },
             h("td", { className: "provider" }, row.provider_id || ""),
-            h("td", null, row.Prscrbr_Type || ""),
-            h("td", null, row.Prscrbr_State_Abrvtn || ""),
+            h("td", { className: "type-cell" }, row.Prscrbr_Type || ""),
+            h("td", { className: "state-cell" }, row.Prscrbr_State_Abrvtn || ""),
             h("td", null, fmtFloat(row.supervised_score)),
             h("td", null, fmtFloat(row.anomaly_score)),
-            h("td", null, h("span", { className: "score-pill" }, fmtFloat(row.hybrid_risk_score)))
+            h("td", null,
+              h("div", { className: "risk-cell" },
+                h("span", {
+                  className: `risk-pill risk-${String(row.hybrid_risk_band || "low").toLowerCase()}`
+                }, prettifyRiskBand(row.hybrid_risk_band))
+              )
+            )
           )
         )
       )
     ),
     h("div", { className: "footer" },
-      "These providers are the highest-ranked rows in the saved top-risk export and can be used directly in your project presentation."
+      "This shortlist shows the highest-ranked provider review cases from the saved top-risk export."
     )
   );
 }
